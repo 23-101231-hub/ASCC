@@ -277,7 +277,7 @@
   function saveFormData(data) {
     const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     existing.unshift({
-      id: (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
+      id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
       date: new Date().toISOString(),
       name: data.name,
       email: data.email,
@@ -356,43 +356,50 @@
 
   function setupSinglePageNav() {
     const header = document.querySelector(".topbar");
-    const headerH = header ? header.offsetHeight : 0;
+    const getHeaderH = () => (header ? header.offsetHeight : 0);
 
     const navLinks = Array.from(document.querySelectorAll(".nav__link"))
       .map((a) => {
-        const href = a.getAttribute("href") || "";
+        const href = (a.getAttribute("href") || "").trim();
         if (!href.startsWith("#")) return null;
         const id = href.slice(1);
-        const sec = id ? document.getElementById(id) : null;
-        return { a, id, sec };
+        return { a, id };
       })
       .filter(Boolean);
 
     if (!navLinks.length) return;
 
-    navLinks.forEach(({ a, sec }) => {
+    navLinks.forEach(({ a, id }) => {
       a.addEventListener("click", (e) => {
-        const href = a.getAttribute("href") || "";
+        const href = (a.getAttribute("href") || "").trim();
         if (!href.startsWith("#")) return;
+
         e.preventDefault();
 
-        const target = sec || document.body;
-        const y = target.getBoundingClientRect().top + window.pageYOffset - headerH + 1;
+        const headerH = getHeaderH();
+        const target = id ? document.getElementById(id) : null;
+        const topEl = document.getElementById("top");
+        const dest = target || topEl || document.body;
 
+        const y = dest.getBoundingClientRect().top + window.pageYOffset - headerH + 1;
         window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
         history.replaceState(null, "", href);
       });
     });
 
-    const sections = navLinks
-      .map((x) => x.sec)
+    const sectionIds = navLinks
+      .map((x) => x.id)
+      .filter((id) => id && id !== "top");
+
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
       .filter(Boolean);
 
     function setActiveByScroll() {
+      const headerH = getHeaderH();
       const pos = window.scrollY + headerH + 6;
 
       let activeId = "top";
-
       for (const s of sections) {
         if (pos >= s.offsetTop) activeId = s.id;
       }
@@ -407,14 +414,90 @@
     setActiveByScroll();
 
     const initialHash = (location.hash || "").trim();
-    if (initialHash) {
+    if (initialHash && initialHash.startsWith("#")) {
       const id = initialHash.slice(1);
       const target = document.getElementById(id);
       if (target) {
+        const headerH = getHeaderH();
         const y = target.getBoundingClientRect().top + window.pageYOffset - headerH + 1;
         window.scrollTo({ top: Math.max(0, y), behavior: "auto" });
       }
     }
+  }
+
+  function setupImageSlider() {
+    const imgEl = document.getElementById("sliderImage");
+    const prevBtn = document.getElementById("prevSlide");
+    const nextBtn = document.getElementById("nextSlide");
+    const dotsWrap = document.getElementById("sliderDots");
+
+    if (!imgEl || !prevBtn || !nextBtn || !dotsWrap) return;
+
+    const images = [
+      { src: "img/PHOTO-2024-03-11-11-04-42.jpg", alt: "Gallery image 1" },
+      { src: "img/PHOTO-2024-03-11-10-59-28.jpg", alt: "Gallery image 2" },
+      { src: "img/PHOTO-2024-03-11-11-07-06.jpg", alt: "Gallery image 3" },
+      { src: "img/PHOTO-2024-03-11-11-05-28.jpg", alt: "Gallery image 4" },
+      { src: "img/PHOTO-2024-03-11-11-06-57.jpg", alt: "Gallery image 4" },
+    ];
+
+    let index = 0;
+
+    function renderDots() {
+      dotsWrap.innerHTML = images
+        .map((_, i) => {
+          const active = i === index ? "is-active" : "";
+          return `<button class="slider__dot ${active}" type="button" data-i="${i}" aria-label="Go to slide ${i + 1}"></button>`;
+        })
+        .join("");
+
+      Array.from(dotsWrap.querySelectorAll(".slider__dot")).forEach((b) => {
+        b.addEventListener("click", () => {
+          const i = Number(b.dataset.i);
+          if (!Number.isFinite(i)) return;
+          goTo(i);
+        });
+      });
+    }
+
+    function setImage(i) {
+      const item = images[i];
+      imgEl.src = item.src;
+      imgEl.alt = item.alt || "Gallery image";
+    }
+
+    function goTo(i) {
+      const nextIndex = (i + images.length) % images.length;
+      if (nextIndex === index) return;
+
+      imgEl.classList.add("is-fading");
+
+      window.setTimeout(() => {
+        index = nextIndex;
+        setImage(index);
+        renderDots();
+        imgEl.classList.remove("is-fading");
+      }, 180);
+    }
+
+    function next() {
+      goTo(index + 1);
+    }
+
+    function prev() {
+      goTo(index - 1);
+    }
+
+    prevBtn.addEventListener("click", prev);
+    nextBtn.addEventListener("click", next);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") next();
+      if (e.key === "ArrowLeft") prev();
+    });
+
+    setImage(index);
+    renderDots();
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -428,8 +511,10 @@
     setupScrollToTop();
     setupThemeToggle();
     setupSinglePageNav();
+    setupImageSlider();
   });
 })();
+
 
 
 
