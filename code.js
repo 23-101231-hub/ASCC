@@ -51,8 +51,14 @@
     setText("ctaVolunteer", "Become a Volunteer");
 
     setHTML("whyTitle", 'Why Choose <span>ASCC</span>');
-    setText("whyIntro", "ASCC is a charitable initiative focused on delivering real, direct help to families and individuals facing hardship. We believe support should be fast, transparent, and reach those who truly need it. ");
-    setText("whyMore", "We also support urgent medical and emergency cases, help brides with essentials, and provide blankets, clothing, and seasonal supplies through verified channels. Every donation is tracked to maximize impact and protect donor trust.");
+    setText(
+      "whyIntro",
+      "ASCC is a charitable initiative focused on delivering real, direct help to families and individuals facing hardship. We believe support should be fast, transparent, and reach those who truly need it. "
+    );
+    setText(
+      "whyMore",
+      "We also support urgent medical and emergency cases, help brides with essentials, and provide blankets, clothing, and seasonal supplies through verified channels. Every donation is tracked to maximize impact and protect donor trust."
+    );
 
     setText("readMoreLabel", "Read More");
     setText("readMoreArrow", "⌄");
@@ -77,6 +83,7 @@
     setText("labelName", "Your Name");
     setText("labelEmail", "Your Email");
     setText("labelMessage", "Your Message");
+
     const name = $("name");
     const email = $("email");
     const message = $("message");
@@ -84,12 +91,6 @@
     if (email) email.placeholder = "Enter your email";
     if (message) message.placeholder = "Write your message";
     setText("sendBtnText", "Send Message");
-
-    setText("messagesTitle", "Contact Messages");
-    setText("th0", "Date");
-    setText("th1", "Name");
-    setText("th2", "Email");
-    setText("th3", "Message");
 
     setText("soc0", "f");
     setText("soc1", "𝕏");
@@ -117,24 +118,11 @@
     setText("copyright1", "ASCC. All rights reserved.");
 
     setText("scrollTopBtn", "↑");
-
- 
   }
 
   function setYear() {
     const y = $("year");
     if (y) y.textContent = String(new Date().getFullYear());
-  }
-
-  function setActiveNav() {
-    const links = Array.from(document.querySelectorAll(".nav__link"));
-    if (!links.length) return;
-    const current = (location.pathname.replace(/\/$/, "").split("/").pop() || "index.html").toLowerCase();
-    links.forEach((link) => {
-      const hrefRaw = (link.getAttribute("href") || "").split("?")[0].split("#")[0];
-      const file = (hrefRaw.replace(/\/$/, "").split("/").pop() || "").toLowerCase();
-      link.classList.toggle("is-active", file === current);
-    });
   }
 
   function setupReadMore() {
@@ -308,29 +296,6 @@
     }, 1200);
   }
 
-  function getSavedData() {
-    const tbody = $("messagesBody");
-    if (!tbody) return;
-
-    const rows = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-
-    if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="4" style="color:#64748b;">No messages yet.</td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = rows
-      .map((r) => {
-        const niceDate = new Date(r.date).toLocaleString();
-        const safeName = escapeHtml(r.name);
-        const safeEmail = escapeHtml(r.email);
-        const safeMsg = escapeHtml(r.message);
-
-        return `<tr><td>${niceDate}</td><td>${safeName}</td><td>${safeEmail}</td><td>${safeMsg}</td></tr>`;
-      })
-      .join("");
-  }
-
   function setupContactForm() {
     const form = $("contactForm");
     if (!form) return;
@@ -349,10 +314,7 @@
       saveFormData(data);
       showSuccessSendMsg("Message sent successfully, we will contact you soon.");
       form.reset();
-      getSavedData();
     });
-
-    getSavedData();
   }
 
   function setupScrollToTop() {
@@ -392,19 +354,84 @@
     });
   }
 
+  function setupSinglePageNav() {
+    const header = document.querySelector(".topbar");
+    const headerH = header ? header.offsetHeight : 0;
+
+    const navLinks = Array.from(document.querySelectorAll(".nav__link"))
+      .map((a) => {
+        const href = a.getAttribute("href") || "";
+        if (!href.startsWith("#")) return null;
+        const id = href.slice(1);
+        const sec = id ? document.getElementById(id) : null;
+        return { a, id, sec };
+      })
+      .filter(Boolean);
+
+    if (!navLinks.length) return;
+
+    navLinks.forEach(({ a, sec }) => {
+      a.addEventListener("click", (e) => {
+        const href = a.getAttribute("href") || "";
+        if (!href.startsWith("#")) return;
+        e.preventDefault();
+
+        const target = sec || document.body;
+        const y = target.getBoundingClientRect().top + window.pageYOffset - headerH + 1;
+
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+        history.replaceState(null, "", href);
+      });
+    });
+
+    const sections = navLinks
+      .map((x) => x.sec)
+      .filter(Boolean);
+
+    function setActiveByScroll() {
+      const pos = window.scrollY + headerH + 6;
+
+      let activeId = "top";
+
+      for (const s of sections) {
+        if (pos >= s.offsetTop) activeId = s.id;
+      }
+
+      navLinks.forEach(({ a, id }) => {
+        a.classList.toggle("is-active", id === activeId);
+      });
+    }
+
+    window.addEventListener("scroll", setActiveByScroll, { passive: true });
+    window.addEventListener("resize", setActiveByScroll);
+    setActiveByScroll();
+
+    const initialHash = (location.hash || "").trim();
+    if (initialHash) {
+      const id = initialHash.slice(1);
+      const target = document.getElementById(id);
+      if (target) {
+        const y = target.getBoundingClientRect().top + window.pageYOffset - headerH + 1;
+        window.scrollTo({ top: Math.max(0, y), behavior: "auto" });
+      }
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     setTitle();
     setStaticText();
     setYear();
-    setActiveNav();
     setupReadMore();
     renderWorkCards();
     setupCounters();
     setupContactForm();
     setupScrollToTop();
     setupThemeToggle();
+    setupSinglePageNav();
   });
 })();
+
+
 
 
   
