@@ -687,7 +687,7 @@ html[data-theme="dark"] .field textarea{
 
 .slider{
   padding: 90px 0;
-  background: var(--page-bg);
+  background: #FFF;
 }
 
 .slider__container{
