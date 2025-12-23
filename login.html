@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | ASCC</title>
+  <link rel="stylesheet" href="login.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rakkas&display=swap"
+    rel="stylesheet"
+  />
+</head>
+
+<body>
+  <main class="login-page">
+
+    <section class="login-left" aria-label="ASCC Logo">
+      <img src="img/8.png" alt="ASCC For Help Logo" class="login-logo" />
+    </section>
+
+
+    <section class="login-right" aria-label="Login Form">
+      <div class="login-card">
+        <h1>Login / Register</h1>
+
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label for="username">Username</label>
+            <div class="input-wrap">
+              <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
+                <path d="M23.1913 25.6343V23.1928C23.1913 21.8978 22.6769 20.6558 21.7611 19.7401C20.8454 18.8244 19.6034 18.3099 18.3084 18.3099H10.984C9.68897 18.3099 8.44697 18.8244 7.53125 19.7401C6.61552 20.6558 6.10107 21.8978 6.10107 23.1928V25.6343" stroke="#99A1AF" stroke-width="2.44146" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14.6446 13.4279C17.3414 13.4279 19.5276 11.2417 19.5276 8.54494C19.5276 5.84818 17.3414 3.66202 14.6446 3.66202C11.9479 3.66202 9.76172 5.84818 9.76172 8.54494C9.76172 11.2417 11.9479 13.4279 14.6446 13.4279Z" stroke="#99A1AF" stroke-width="2.44146" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg></span>
+              <input id="username" type="text" placeholder="Farida or Mohammed" autocomplete="username" />
+            </div>
+            <small class="error" id="userErr"></small>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
+                <path d="M23.1938 13.4297H6.10357C4.75519 13.4297 3.66211 14.5228 3.66211 15.8711V24.4163C3.66211 25.7646 4.75519 26.8577 6.10357 26.8577H23.1938C24.5422 26.8577 25.6353 25.7646 25.6353 24.4163V15.8711C25.6353 14.5228 24.5422 13.4297 23.1938 13.4297Z" stroke="#99A1AF" stroke-width="2.44146" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8.54565 13.4297V8.54677C8.54565 6.92798 9.18872 5.37549 10.3334 4.23083C11.478 3.08618 13.0305 2.44312 14.6493 2.44312C16.2681 2.44312 17.8206 3.08618 18.9652 4.23083C20.1099 5.37549 20.753 6.92798 20.753 8.54677V13.4297" stroke="#99A1AF" stroke-width="2.44146" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg></span>
+              <input id="password" type="password" placeholder="••••••" autocomplete="current-password" />
+            </div>
+            <small class="error" id="passErr"></small>
+          </div>
+
+          <button class="login-btn" type="submit">Login</button>
+
+          <div class="success" id="loginMsg" role="status" aria-live="polite"></div>
+        </form>
+
+        <div class="demo">
+          <p class="demo-title">Demo Credentials:</p>
+          <p><b>Male:</b> Mohammed , <span>male123</span></p>
+          <p><b>Female:</b> Farida , <span>female123</span></p>
+        </div>
+      </div>
+    </section>
+
+
+    
+  </main>
+
+  <script src="login.js"></script>
+</body>
+</html>
